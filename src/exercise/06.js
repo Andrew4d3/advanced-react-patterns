@@ -36,12 +36,22 @@ function useToggle({
   // 🐨 add an `on` option here
   on: controlledOn,
   // 💰 you can alias it to `controlledOn` to avoid "variable shadowing."
+  readOnly = false,
 } = {}) {
   const {current: initialState} = React.useRef({on: initialOn})
   const [state, dispatch] = React.useReducer(reducer, initialState)
   // 🐨 determine whether on is controlled and assign that to `onIsControlled`
   // 💰 `controlledOn != null`
   const onIsControlled = controlledOn != null
+
+  const hasOnChange = Boolean(onChange)
+  React.useEffect(() => {
+    if (!hasOnChange && onIsControlled && !readOnly) {
+      console.warn(
+        `An \`on\` prop was provided to useToggle without an \`onChange\` handler. This will render a read-only toggle. If you want it to be mutable, use \`initialOn\`. Otherwise, set either \`onChange\` or \`readOnly\`.`,
+      )
+    }
+  }, [hasOnChange, onIsControlled, readOnly])
 
   // 🐨 Replace the next line with `const on = ...` which should be `controlledOn` if
   // `onIsControlled`, otherwise, it should be `state.on`.
@@ -107,12 +117,13 @@ function useToggle({
   }
 }
 
-function Toggle({on: controlledOn, onChange, initialOn, reducer}) {
+function Toggle({on: controlledOn, onChange, initialOn, reducer, readOnly}) {
   const {on, getTogglerProps} = useToggle({
     on: controlledOn,
     onChange,
     initialOn,
     reducer,
+    readOnly,
   })
   const props = getTogglerProps({on})
   return <Switch {...props} />
@@ -138,7 +149,7 @@ function App() {
   return (
     <div>
       <div>
-        <Toggle on={bothOn} onChange={handleToggleChange} />
+        <Toggle on={bothOn} readOnly />
         <Toggle on={bothOn} onChange={handleToggleChange} />
       </div>
       {timesClicked > 4 ? (
