@@ -44,6 +44,8 @@ function useToggle({
   // 💰 `controlledOn != null`
   const onIsControlled = controlledOn != null
 
+  const {current: prevProps} = React.useRef({onIsControlled})
+
   const hasOnChange = Boolean(onChange)
   React.useEffect(() => {
     if (!hasOnChange && onIsControlled && !readOnly) {
@@ -52,6 +54,14 @@ function useToggle({
       )
     }
   }, [hasOnChange, onIsControlled, readOnly])
+
+  React.useEffect(() => {
+    if (onIsControlled !== prevProps.onIsControlled) {
+      console.warn(
+        'Component is changing from controlled to uncontrolled or viceversa',
+      )
+    }
+  }, [onIsControlled, prevProps])
 
   // 🐨 Replace the next line with `const on = ...` which should be `controlledOn` if
   // `onIsControlled`, otherwise, it should be `state.on`.
@@ -130,7 +140,7 @@ function Toggle({on: controlledOn, onChange, initialOn, reducer, readOnly}) {
 }
 
 function App() {
-  const [bothOn, setBothOn] = React.useState(false)
+  const [bothOn, setBothOn] = React.useState()
   const [timesClicked, setTimesClicked] = React.useState(0)
 
   function handleToggleChange(state, action) {
