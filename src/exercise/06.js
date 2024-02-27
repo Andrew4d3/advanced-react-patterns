@@ -29,9 +29,15 @@ function toggleReducer(state, {type, initialState}) {
 }
 
 const useSwitchWarnings = (onChange, onIsControlled, readOnly) => {
+  if (process.env.NODE_ENV !== 'development') {
+    return
+  }
+
   const hasOnChange = Boolean(onChange)
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const {current: prevProps} = React.useRef({onIsControlled})
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   React.useEffect(() => {
     if (!hasOnChange && onIsControlled && !readOnly) {
       console.warn(
@@ -40,6 +46,7 @@ const useSwitchWarnings = (onChange, onIsControlled, readOnly) => {
     }
   }, [hasOnChange, onIsControlled, readOnly])
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   React.useEffect(() => {
     if (onIsControlled !== prevProps.onIsControlled) {
       console.warn(
